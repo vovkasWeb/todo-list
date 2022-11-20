@@ -39,6 +39,7 @@ const tasks = [
   const listContainer = document.querySelector(
     ".tasks-list-section .list-group"
   );
+
   const form = document.forms["addTask"];
   const inputTitle = form.elements["title"];
   const inputBody = form.elements["body"];
@@ -48,6 +49,7 @@ const tasks = [
   //Events
   renderAllTasks(objOfTasks);
   form.addEventListener("submit", onFormSubmitHandler);
+  listContainer.addEventListener("click", onDeletehandler);
 
   function renderAllTasks(tasksList) {
     if (!tasksList) {
@@ -70,13 +72,14 @@ const tasks = [
       "flex-wrap",
       "mt-2"
     );
+    li.setAttribute("data-task-id", _id);
     const span = document.createElement("span");
     span.textContent = title;
     span.style.fontWeight = "bold";
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete task";
-    deleteBtn.classList.add("btn", "btn-danger", "ml-auto", "deleete-btn");
+    deleteBtn.classList.add("btn", "btn-danger", "ml-auto", "delete-btn");
 
     const artuicle = document.createElement("p");
     artuicle.textContent = body;
@@ -100,7 +103,7 @@ const tasks = [
     const task = createNewTask(titleValue, bodyValue);
     const listItem = listItemTemlate(task);
     listContainer.insertAdjacentElement("afterbegin", listItem);
-	 form.reset();
+    form.reset();
   }
 
   function createNewTask(title, body) {
@@ -112,5 +115,25 @@ const tasks = [
     };
     objOfTasks[newTask._id] = newTask;
     return { ...newTask };
+  }
+  function deleteTask(id) {
+    const { title } = objOfTasks[id];
+    const isConfirm = confirm(`Toчно вы хотите удалить задачу: ${title} ?`);
+    if (!isConfirm) return isConfirm;
+    delete objOfTasks[id];
+	 return isConfirm;
+  }
+  function deleteTaskFromHtml(el,completed){
+	if(!completed) return;
+	el.remove();
+  }
+
+  function onDeletehandler({ target }) {
+    if (target.classList.contains("delete-btn")) {
+      const parent = target.closest("[data-task-id]");
+      const id = parent.dataset.taskId;
+		const confirmed = deleteTask(id);
+		deleteTaskFromHtml(parent,confirmed);
+    }
   }
 })(tasks);
